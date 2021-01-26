@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "797677520695",
+    "project_id": "doctorsathome-234ff",
+    "storage_bucket": "doctorsathome-234ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797677520695:android:981cbe499684458ccffcb2",
+        "android_client_info": {
+          "package_name": "com.kanpekiti.doctoresensucasa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797677520695-jerlh6o1mvkoobq93rd72od0930h5egs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpYeKIAYHhqSVqaYYbcizfUh6KGJi1dao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797677520695-jerlh6o1mvkoobq93rd72od0930h5egs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

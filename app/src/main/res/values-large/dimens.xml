@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dimensions For Tablets  -->
+    <!-- Dimensions For Servicios  -->
+    <dimen name="text_view_servicios">30sp</dimen>
+    <dimen name="image_view_servicios_width">180dp</dimen>
+    <dimen name="image_view_servicios_height">180dp</dimen>
+    <dimen name="secret_textView_height">70sp</dimen>
+
+    <dimen name="title_layout">20dp</dimen>
+
+
+        <!-- Dimensiones Servicios -->
+<!--        <dimen name="text_view_servicios">15sp</dimen>
+        <dimen name="image_view_servicios_width">120dp</dimen>
+        <dimen name="image_view_servicios_height">120dp</dimen>
+        <dimen name="secret_textView_height">40sp</dimen>-->
+
+        <!-- Dimensiones Menu Principal -->
+        <dimen name="image_view_menu_width">150dp</dimen>
+        <dimen name="image_view_menu_height">150dp</dimen>
+        <dimen name="image_view_nuvy_icon_width">80dp</dimen>
+        <dimen name="image_view_nuvy_icon_height">80dp</dimen>
+
+    <dimen name="local_preview_width">88dp</dimen>
+    <dimen name="local_preview_height">117dp</dimen>
+    <dimen name="local_back_icon_size">50dp</dimen>
+    <dimen name="remote_back_icon_size">100dp</dimen>
+    <dimen name="remote_back_icon_margin_bottom">90dp</dimen>
+
+    <!-- buttons -->
+    <dimen name="control_bottom_margin">24dp</dimen>
+    <dimen name="control_bottom_horizontal_margin">30dp</dimen>
+
+
+</resources>

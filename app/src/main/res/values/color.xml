@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--<color name="colorPrimary">#4168ac</color>-->
+    <color name="colorAccentDark">#2c88e9</color>
+    <color name="colorPrimary">#5898DB</color>
+    <color name="colorPrimaryDark">#5898DB</color>
+    <color name="colorAccent">#FF81ABD7</color>
+    <color name="colorSaludo">#9c9b9b</color>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+
+    <color name="verde_lima">#aaee22</color>
+    <color name="rojo_vivo">#E8110F</color>
+    <color name="naranja">#e17934</color>
+    <color name="amarillo_canario">#FFCC00</color>
+
+    <color name="color_fondo">#355ca9</color>
+    <color name="colorTransparente">#892e86ce</color>
+
+    <color name="underline_default_color">#CCCCCC</color>
+    <color name="underline_selected_color">#000</color>
+    <color name="hintColor">#CCCCCC</color>
+    <color name="textColor">#000</color>
+
+    <color name="logInfo">#4a90e2</color>
+    <color name="logWarn">#fedd56</color>
+    <color name="logError">#fe375f</color>
+
+
+    <color name="white_ru">#D2E9FF</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+    <color name="blue">#32c5f3</color>
+    <color name="green">#4ACC60</color>
+    <color name="pink">#6A2290</color>
+    <color name="blue_light">#53687D</color>
+    <color name="yellow">#FF7F24</color>
+    <color name="pink_dark">#4B0082</color>
+
+</resources>
