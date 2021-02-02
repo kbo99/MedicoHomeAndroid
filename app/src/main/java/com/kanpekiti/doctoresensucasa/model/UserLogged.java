@@ -25,6 +25,8 @@ public class UserLogged {
    // @ColumnInfo(name = "tknlog")
     private String tkn;
 
+    private String tknFCM;
+
     public UserLogged() {
 
     }
@@ -37,46 +39,6 @@ public class UserLogged {
         this.tkn = tkn;
     }
 
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getApePa() {
-        return apePa;
-    }
-
-    public String getTkn() {
-        return tkn;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setApePa(String apePa) {
-        this.apePa = apePa;
-    }
-
-    public void setTkn(String tkn) {
-        this.tkn = tkn;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public static UserLogged consultarUsuario(DoctorDB database){
         UserLogged usuario = null;
@@ -129,5 +91,72 @@ public class UserLogged {
         long i = db.insert("UserLogged", null, values);
 
         db.close();
+    }
+
+
+    public  static int updateTknFCM(DoctorDB dataBase, Integer usuId, String tknFCM){
+        SQLiteDatabase db = dataBase.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("tknFCM", tknFCM);
+
+        int i = db.update("UserLogged", values, " id = ?",
+                new String[]{usuId.toString()});
+
+        db.close();
+        return i;
+    }
+
+
+
+
+
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getApePa() {
+        return apePa;
+    }
+
+    public String getTkn() {
+        return tkn;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setApePa(String apePa) {
+        this.apePa = apePa;
+    }
+
+    public void setTkn(String tkn) {
+        this.tkn = tkn;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+
+    public String getTknFCM() {
+        return tknFCM;
+    }
+
+    public void setTknFCM(String tknFCM) {
+        this.tknFCM = tknFCM;
     }
 }

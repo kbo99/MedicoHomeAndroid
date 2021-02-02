@@ -7,24 +7,6 @@
                 android:title="Mi Cuenta"
                 app:showAsAction="always"
                 android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/open"
-                android:title="Mis Datos"
-                android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/membre"
-                android:title="Membresia"
-                android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/medico"
-                android:title="Mis Medicos"
-                android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/contacto"
-                android:title="Contacto"
-                android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/config"
-                android:title="Configuracion"
-                android:icon="@drawable/favicon1"/>
-            <item android:id="@+id/sesioon"
-                 android:title="Cerrar Sesion"
-                android:icon="@drawable/favicon1"/>
 
 
 

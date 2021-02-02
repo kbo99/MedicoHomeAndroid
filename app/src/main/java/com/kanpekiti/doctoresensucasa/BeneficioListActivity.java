@@ -2,6 +2,7 @@ package com.kanpekiti.doctoresensucasa;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -58,11 +59,13 @@ public class BeneficioListActivity extends AppCompatActivity {
     }
 
     private void getBenefico(String user){
+        ProgressDialog dialogRec = ProgressDialog.show(BeneficioListActivity.this, "Aviso", "Cargando Informacion...", true);
         doctorService = DoctorApi.doctorApi(BeneficioListActivity.this).create(DoctorService.class);
         lstDoctor = doctorService.findMyBenefico(user);
         lstDoctor.enqueue(new Callback<List<Beneficio>>() {
             @Override
             public void onResponse(Call<List<Beneficio>> call, Response<List<Beneficio>> response) {
+                dialogRec.dismiss();
                 if(response.code() == 200){
                     List<Beneficio> respuesta = response.body();
                     llenarLista(respuesta, BeneficioListActivity.this);

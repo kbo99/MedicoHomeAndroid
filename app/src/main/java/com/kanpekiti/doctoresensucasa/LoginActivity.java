@@ -2,6 +2,7 @@ package com.kanpekiti.doctoresensucasa;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +42,8 @@ public class LoginActivity extends AppCompatActivity {
         //Recuperar de la vista
         EditText username=  findViewById(R.id.editTextEmail);
         EditText pass = findViewById(R.id.editTextPassword);
-        new AsynTaskLogin(this).execute(username.getText().toString(),
+        ProgressDialog dialogRec   = ProgressDialog.show(LoginActivity.this, "Doctores en su Casa", "Iniciando Sesion...", true);
+        new AsynTaskLogin(this, dialogRec).execute(username.getText().toString(),
                 pass.getText().toString());
 
     }

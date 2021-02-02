@@ -6,9 +6,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,10 +32,15 @@ import com.kanpekiti.doctoresensucasa.api.ChannelApi;
 import com.kanpekiti.doctoresensucasa.api.ChannelService;
 import com.kanpekiti.doctoresensucasa.api.LoginApi;
 import com.kanpekiti.doctoresensucasa.api.LoginService;
+import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
 import com.kanpekiti.doctoresensucasa.model.UserLogged;
+import com.kanpekiti.doctoresensucasa.util.Const;
 import com.kanpekiti.doctoresensucasa.vo.LoggerRecyclerView;
 import com.kanpekiti.doctoresensucasa.vo.TokenUser;
 import com.kanpekiti.doctoresensucasa.vo.VideoCallChannel;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
@@ -74,11 +83,12 @@ public class VideoCallActivity  extends AppCompatActivity {
 
     private LayoutInflater mInflater;
 
-    private  String channelAgora;
 
-    private String tknAgora;
+    private ProgressDialog dialogRec;
 
+    private boolean atendio = false;
 
+    private CountDownTimer countDownTimer;
 
 
     /**
@@ -194,6 +204,12 @@ public class VideoCallActivity  extends AppCompatActivity {
         mRemoteVideo = new VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, uid);
         // Initializes the video view of a remote user.
         mRtcEngine.setupRemoteVideo(mRemoteVideo);
+        if(getIntent() != null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
+            this.atendio = true;
+            dialogRec.dismiss();
+            countDownTimer.onFinish();
+        }
+
     }
 
     private void onRemoteUserLeft(int uid) {
@@ -201,7 +217,8 @@ public class VideoCallActivity  extends AppCompatActivity {
             removeFromParent(mRemoteVideo);
             // Destroys remote view
             mRemoteVideo = null;
-           endCall();
+            mCallEnd = false;
+            changeBotun();
         }
     }
 
@@ -219,7 +236,7 @@ public class VideoCallActivity  extends AppCompatActivity {
         getSupportActionBar().setCustomView(mCustomView);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
-        channelService = ChannelApi.loginApi().create(ChannelService.class);
+
 
         //Recuperar de la vista
 
@@ -230,6 +247,8 @@ public class VideoCallActivity  extends AppCompatActivity {
         }
 
     }
+
+
 
     private void initUI() {
         mLocalContainer = findViewById(R.id.local_video_view_container);
@@ -334,15 +353,57 @@ public class VideoCallActivity  extends AppCompatActivity {
         // RENDER_MODE_HIDDEN: Uniformly scale the video until it fills the visible boundaries. One dimension of the video may have clipped contents.
         mLocalVideo = new VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, 0);
         mRtcEngine.setupLocalVideo(mLocalVideo);
+        if(getIntent() != null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
+            splash();
+        }
+
     }
 
     private void joinChannel() {
-        String token = getString(R.string.agora_access_token);
-        if (TextUtils.isEmpty(token) || TextUtils.equals(token, "0069ae0eba52f1a4d9d84c6fc4d85aabfbbIAAbBwUzu7vTfvxbjkfzpAA49Sy9deRa2mC8An0yAoew/94//qYAAAAAEACpE93IofoBYAEAAQCi+gFg")) {
-        //    token = null; // default, no token
-        }
-        mRtcEngine.joinChannel("de23719d4dd643c4bf17f484ddfdbdfc", "channelAgora", "Extra Optional Data", 0);
+        if(getIntent() != null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
+            dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Buscando Doctores Disponibles...", true);
+            dialogRec.setIcon(R.drawable.btn_startcall);
 
+            new AsynTaskTknFCM(VideoCallActivity.this).execute(Const.NOTIFICA_DOCTOR,
+                    Const.TITULO_VI,Const.MENSAJE_VI);
+        }
+
+        mRtcEngine.joinChannel("de23719d4dd643c4bf17f484ddfdbdfc",
+                "channelAgora", "Extra Optional Data", 0);
+
+    }
+
+    public void splash(){
+         countDownTimer = new CountDownTimer(60000, 1000) {
+
+
+            @Override
+            public void onTick(long l) {
+               // dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Buscando Doctores Disponibles...", true);
+            }
+
+            public void onFinish() {
+
+               if(!atendio){
+                   dialogRec.dismiss();
+                   mCallEnd = false;
+                   changeBotun();
+                   AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
+
+                   builder.setMessage("No hay Doctores Disponibles")
+                           .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                   builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                           dialog.dismiss();
+                       }
+                   });
+                   AlertDialog dialog = builder.create();
+                   dialog.show();
+               }
+
+
+            }
+        }.start();
     }
 
     @Override
@@ -378,6 +439,10 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     public void onCallClicked(View view) {
+        changeBotun();
+    }
+
+    private void changeBotun(){
         if (mCallEnd) {
             startCall();
             mCallEnd = false;

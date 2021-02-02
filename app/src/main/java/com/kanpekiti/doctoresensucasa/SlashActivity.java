@@ -50,7 +50,7 @@ public class SlashActivity extends AppCompatActivity {
                 finish();
             }else {
                 Intent intent = new Intent(SlashActivity.this,
-                        LoginActivity.class);
+                        MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
                 finish();

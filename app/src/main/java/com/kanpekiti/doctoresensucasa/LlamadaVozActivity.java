@@ -1,12 +1,17 @@
 package com.kanpekiti.doctoresensucasa;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
+import com.kanpekiti.doctoresensucasa.util.Const;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +43,12 @@ public class LlamadaVozActivity extends AppCompatActivity {
 
 
     private RtcEngine mRtcEngine; // Tutorial Step 1
+
+    private ProgressDialog dialogRec;
+
+    private boolean atendio = false;
+
+    private CountDownTimer countDownTimer;
 
 
     @Override
@@ -211,14 +223,13 @@ public class LlamadaVozActivity extends AppCompatActivity {
 
     // Tutorial Step 2
     private void joinChannel() {
-
-        // Sets the channel profile of the Agora RtcEngine.
-        // CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile. Use this profile in one-on-one calls or group calls, where all users can talk freely.
-        // CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams; an audience can only receive streams.
+      if(getIntent() == null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
+          new AsynTaskTknFCM(LlamadaVozActivity.this).execute(Const.NOTIFICA_DOCTOR,
+                  Const.TITULO_VO,Const.MENSAJE_VO);
+      }
         mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
+        mRtcEngine.joinChannel("de23719d4dd643c4bf17f484ddfdbdfc", "voiceDemoChannel1", "Extra Optional Data", 0);
 
-        // Allows a user to join a channel.
-        mRtcEngine.joinChannel("de23719d4dd643c4bf17f484ddfdbdfc", "voiceDemoChannel1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
     }
 
     // Tutorial Step 3
@@ -228,13 +239,43 @@ public class LlamadaVozActivity extends AppCompatActivity {
 
     // Tutorial Step 4
     private void onRemoteUserLeft(int uid, int reason) {
-        showLongToast(String.format(Locale.US, "user %d left %d", (uid & 0xFFFFFFFFL), reason));
-        View tipMsg = findViewById(R.id.quick_tips_when_use_agora_sdk); // optional UI
-        tipMsg.setVisibility(View.VISIBLE);
+        finish();
     }
 
     // Tutorial Step 6
     private void onRemoteUserVoiceMuted(int uid, boolean muted) {
         showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
     }
+
+    public void splash(){
+         countDownTimer = new CountDownTimer(30000, 1000) {
+
+
+            @Override
+            public void onTick(long l) {
+                // dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Buscando Doctores Disponibles...", true);
+            }
+
+            public void onFinish() {
+                dialogRec.dismiss();
+                if(!atendio){
+                    finish();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LlamadaVozActivity.this);
+
+                    builder.setMessage("No hay Doctores Disponibles")
+                            .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
+
+            }
+        }.start();
+    }
+
 }

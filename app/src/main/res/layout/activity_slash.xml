@@ -12,7 +12,7 @@
         android:layout_height="300sp"
         android:id="@+id/splash"
         android:layout_gravity="center"
-        android:src="@drawable/logo_full"
+        android:src="@mipmap/ic_logo_foreground"
         android:layout_above="@+id/progressBar" />
 
 </LinearLayout>

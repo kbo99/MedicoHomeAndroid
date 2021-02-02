@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/page_1"
+        android:enabled="true"
+        android:icon="@drawable/ic_account_circle_24px"
+        android:title="Perfil" />
+    <item
+        android:id="@+id/page_2"
+        android:enabled="true"
+        android:icon="@drawable/ic_military_tech_24px"
+        android:title="Membresia"/>
+    <item android:id="@+id/medico"
+        android:title="Mis Medicos"
+        android:icon="@drawable/ic_masks_24px"/>
+
+    <item android:id="@+id/membre"
+        android:title="Ampliar Membresia"
+        android:icon="@drawable/ic_control_point_24px"/>
+
+    <item android:id="@+id/contacto"
+        android:title="Contacto"
+        android:icon="@drawable/ic_contact_support_24px"/>
+</menu>

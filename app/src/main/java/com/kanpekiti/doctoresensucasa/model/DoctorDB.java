@@ -11,7 +11,7 @@ public class DoctorDB extends SQLiteOpenHelper {
 
     public static String databaseName = "doctorDB.db";
     public static SQLiteDatabase.CursorFactory databaseFactory = null;
-    public static int databaseVersion = 2;
+    public static int databaseVersion = 4;
 
     public DoctorDB(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -19,7 +19,8 @@ public class DoctorDB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE UserLogged(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, nombre TEXT, apellido TEXT, token TEXT)");
+        db.execSQL("CREATE TABLE UserLogged(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, nombre TEXT, apellido TEXT, token TEXT, tknFCM TEXT)");
+        db.execSQL("CREATE TABLE Grupos(gprId INTEGER PRIMARY KEY AUTOINCREMENT, gprNombre TEXT)");
     }
 
     @Override
@@ -27,6 +28,7 @@ public class DoctorDB extends SQLiteOpenHelper {
 
         if (oldVersion < newVersion){
             db.execSQL("DROP TABLE IF EXISTS UserLogged");
+            db.execSQL("DROP TABLE IF EXISTS Grupos");
         }
     }
 }

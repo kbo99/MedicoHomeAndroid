@@ -1,25 +1,38 @@
 package com.kanpekiti.doctoresensucasa;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
 import com.kanpekiti.doctoresensucasa.model.DoctorDB;
-
-
+import com.kanpekiti.doctoresensucasa.util.Const;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private View mCustomView;
 
     private LayoutInflater mInflater;
+
 
 
 
@@ -42,6 +56,26 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setCustomView(mCustomView);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
+        createNotificationChannel();
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.page_1:
+                        startActivity(new Intent(MainActivity.this, PerfilActivity.class));
+                        break;
+                    case R.id.membre:
+                        Toast.makeText(MainActivity.this, "Favorites", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.page_2:
+                        startActivity(new Intent(MainActivity.this, MembresiaActivity.class));
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -64,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, AsesoriaMedicaActivity.class));
     }
 
+    public void maps(View view){
+        startActivity(new Intent(MainActivity.this, AmbulanciaActivity.class));
+    }
+
 
     /**
      *
@@ -72,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
     public void logout(Activity activity) {
         DoctorDB database = new DoctorDB(MainActivity.this, DoctorDB.databaseName,
                 DoctorDB.databaseFactory, DoctorDB.databaseVersion);
-//        ConexionGenerica(activity,WSCerrarSesion(ConsultarAliado(database).getId()));
         SQLiteDatabase db = database.getWritableDatabase();
          db.execSQL("DELETE FROM UserLogged");
+        db.execSQL("DELETE FROM Grupos");
         activity.finish();
         activity.startActivity(new Intent(activity, LoginActivity.class));
     }
@@ -116,12 +154,35 @@ public class MainActivity extends AppCompatActivity {
             case R.id.create_new:
                 cerrarSesion();
                 return true;
-            case R.id.sesioon:
-                cerrarSesion();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(Const.CHANNEL_ID_VC,
+                    Const.CHANNEL_NAME_VC, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Video LLamada Entrante");
+
+            NotificationChannel channelVoice = new NotificationChannel(Const.CHANNEL_ID_LL,
+                    Const.CHANNEL_NAME_LL, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("LLamada");
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+            notificationManager.createNotificationChannel(channelVoice);
+        }
+    }
+
+    public void getAmbulancia(View view){
+        startActivity(new Intent(MainActivity.this, AmbulanciaActivity.class));
+    }
+
+
+
+
+
+
 
 }

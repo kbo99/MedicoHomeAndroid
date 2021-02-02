@@ -70,7 +70,7 @@ public class ChatActivity extends AppCompatActivity {
     private int mChannelMemberCount = 1;
 
     private ChatManager mChatManager;
-    private RtmClient mRtmClient;
+        private RtmClient mRtmClient;
     private RtmClientListener mClientListener;
     private RtmChannel mRtmChannel;
 
@@ -104,7 +104,16 @@ public class ChatActivity extends AppCompatActivity {
         mIsPeerToPeerMode = intent.getBooleanExtra(MessageUtil.INTENT_EXTRA_IS_PEER_MODE, true);
         mUserId = intent.getStringExtra(MessageUtil.INTENT_EXTRA_USER_ID);
         String targetName = intent.getStringExtra(MessageUtil.INTENT_EXTRA_TARGET_NAME);
-
+        mRtmClient.login(null, "targetName", new ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void responseInfo) {
+                Log.d(TAG, "login success!");
+            }
+            @Override
+            public void onFailure(ErrorInfo errorInfo) {
+                Log.d(TAG, "login failure!");
+            }
+        });
         mTitleTextView = findViewById(R.id.message_title);
         if (mIsPeerToPeerMode) {
             mPeerId = targetName;
