@@ -55,6 +55,14 @@ public class NotificacionFcm implements Serializable {
 	@Expose
 	private String mensaje;
 
+	@SerializedName("longitude")
+	@Expose
+	private String longitude;
+
+	@SerializedName("latitude")
+	@Expose
+	private String latitude;
+
 	public NotificacionFcm() {
 	}
 
@@ -128,5 +136,21 @@ public class NotificacionFcm implements Serializable {
 
 	public void setMensaje(String mensaje) {
 		this.mensaje = mensaje;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
 	}
 }

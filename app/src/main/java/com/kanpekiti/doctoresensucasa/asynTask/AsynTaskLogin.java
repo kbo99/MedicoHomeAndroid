@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -80,31 +81,78 @@ public class AsynTaskLogin extends AsyncTask<String, String, String[]> {
                     activity.startActivity(intent);
                     activity.finish();
                 }else{
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-                    builder.setMessage("Usuario o Password Incorrecto")
-                            .setTitle("Aviso");
-                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
+                    lanzaMensaje(activity,"Aviso","Usuario o Password Incorrecto");
+                 }
 
             }
 
             @Override
             public void onFailure(Call<TokenUser> call, Throwable t) {
-                TokenUser tkn  = new TokenUser();
-                tkn = null;
-
+                dialogRec.dismiss();
+                lanzaMensaje(activity,"Aviso","Servicio no Disponible.");
             }
 
         });
         return strings;
+    }
+
+    private void lanzaMensaje(Activity activity, String title, String mensaje){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(mensaje)
+                .setTitle(title);
+        builder.setIcon(R.drawable.favicon1);
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    /**
+     *
+     * @param activity
+     */
+    private static void logout(Activity activity) {
+        DoctorDB database = new DoctorDB(activity, DoctorDB.databaseName,
+                DoctorDB.databaseFactory, DoctorDB.databaseVersion);
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.execSQL("DELETE FROM UserLogged");
+        db.execSQL("DELETE FROM Grupos");
+        activity.finish();
+        activity.startActivity(new Intent(activity, LoginActivity.class));
+    }
+
+
+    public static void cerrarSesion(Activity activit){
+        alertConfirm("Desea Cerrar sesion", activit);
+    }
+
+
+    private static void alertConfirm(String mensaje, final Activity context) {
+
+        final android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(context);
+
+        alertDialogBuilder
+                .setTitle("Mensaje de la Aplicación")
+                .setMessage(mensaje)
+                .setCancelable(false)
+                .setIcon(R.drawable.favicon1)
+                .setPositiveButton("SI",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                                logout(context);
+                            }
+                        })
+                .setNegativeButton("NO",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
     }
 
 

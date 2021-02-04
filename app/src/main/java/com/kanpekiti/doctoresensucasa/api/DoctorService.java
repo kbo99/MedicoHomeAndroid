@@ -2,6 +2,8 @@ package com.kanpekiti.doctoresensucasa.api;
 
 import com.kanpekiti.doctoresensucasa.vo.Beneficio;
 import com.kanpekiti.doctoresensucasa.vo.Grupo;
+import com.kanpekiti.doctoresensucasa.vo.Membresia;
+import com.kanpekiti.doctoresensucasa.vo.MembresiaCliente;
 import com.kanpekiti.doctoresensucasa.vo.NotificacionFcm;
 
 import java.util.List;
@@ -32,6 +34,11 @@ public interface DoctorService {
 
     @POST(("api/notificacion/fcm/generaNotifica"))
     Call<List<NotificacionFcm>> generaNotificaLlamada(@Body NotificacionFcm notificacionFcm);
+
+
+    @POST(("api/servicio-admin/findMembresia"))
+    Call<MembresiaCliente> findMembresia(@Body String user);
+
 
 
 }

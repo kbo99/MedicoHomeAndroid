@@ -1,6 +1,7 @@
 package com.kanpekiti.doctoresensucasa;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -16,6 +17,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import android.view.MenuInflater;
 
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -30,9 +33,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskLogin;
 import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
 import com.kanpekiti.doctoresensucasa.model.DoctorDB;
+import com.kanpekiti.doctoresensucasa.model.Grupos;
+import com.kanpekiti.doctoresensucasa.model.UserLogged;
 import com.kanpekiti.doctoresensucasa.util.Const;
+
+import java.util.List;
+
+import static com.kanpekiti.doctoresensucasa.UbicacionActivity.MY_PERMISSIONS_REQUEST_LOCATION;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -40,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
     private View mCustomView;
 
     private LayoutInflater mInflater;
+
+    private DoctorDB dataBase;
+
+    private boolean isDoctor = false;
+
+    private TextView nombre;
 
 
 
@@ -56,7 +72,12 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setCustomView(mCustomView);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
+         dataBase = new DoctorDB(MainActivity.this, DoctorDB.databaseName,
+                DoctorDB.databaseFactory, DoctorDB.databaseVersion);
+
         createNotificationChannel();
+
+        checkLocationPermission();
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -76,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        initComp();
     }
 
     @Override
@@ -85,13 +107,31 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void initComp(){
+        UserLogged userTmp = UserLogged.consultarUsuario(dataBase);
+
+        nombre = findViewById(R.id.welcomeTXT);
+         nombre.setText("Bienvenido, "+ userTmp.getNombre());
+    }
+
     public void beneficio(View view) {
 
         startActivity(new Intent(MainActivity.this, BeneficioListActivity.class));
     }
 
     public void initCall(View view){
-        startActivity(new Intent(MainActivity.this, VideoCallActivity.class));
+
+        List<Grupos> lstGrupo = Grupos.consultarGrupo(dataBase);
+        for (Grupos grp : lstGrupo) {
+            if (grp.getGprNombre().equals(Const.ROLE_DOCTOR)) {
+                this.isDoctor = true;
+                break;
+            }
+        }
+        if(!this.isDoctor){
+            startActivity(new Intent(MainActivity.this, VideoCallActivity.class));
+        }
+
     }
 
     public void  asesoria(View view){
@@ -103,49 +143,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     *
-     * @param activity
-     */
-    public void logout(Activity activity) {
-        DoctorDB database = new DoctorDB(MainActivity.this, DoctorDB.databaseName,
-                DoctorDB.databaseFactory, DoctorDB.databaseVersion);
-        SQLiteDatabase db = database.getWritableDatabase();
-         db.execSQL("DELETE FROM UserLogged");
-        db.execSQL("DELETE FROM Grupos");
-        activity.finish();
-        activity.startActivity(new Intent(activity, LoginActivity.class));
-    }
+
 
     public void cerrarSesion(){
-        alertConfirm("Desea Cerrar sesion", MainActivity.this);
+        AsynTaskLogin.cerrarSesion( MainActivity.this);
     }
-
-
-    public void alertConfirm(String mensaje, final Activity context) {
-
-        final android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(context);
-
-        alertDialogBuilder
-                .setTitle("Mensaje de la Aplicación")
-                .setMessage(mensaje)
-                .setCancelable(false)
-                .setPositiveButton("SI",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                              logout(context);
-                            }
-                        })
-                .setNegativeButton("NO",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        })
-                .show();
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -167,16 +169,58 @@ public class MainActivity extends AppCompatActivity {
 
             NotificationChannel channelVoice = new NotificationChannel(Const.CHANNEL_ID_LL,
                     Const.CHANNEL_NAME_LL, NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("LLamada");
+            channelVoice.setDescription("LLamada");
+
+            NotificationChannel channelAmbulancia = new NotificationChannel(Const.CHANNEL_ID_AM,
+                    Const.CHANNEL_NAME_AM, NotificationManager.IMPORTANCE_HIGH);
+            channelAmbulancia.setDescription("Ambulancia");
+
+            NotificationChannel channelMedicoAthome = new NotificationChannel(Const.CHANNEL_ID_DAH,
+                    Const.CHANNEL_NAME_DH, NotificationManager.IMPORTANCE_HIGH);
+            channelMedicoAthome.setDescription("Medico At Home");
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
             notificationManager.createNotificationChannel(channelVoice);
+            notificationManager.createNotificationChannel(channelAmbulancia);
+            notificationManager.createNotificationChannel(channelMedicoAthome);
         }
     }
 
     public void getAmbulancia(View view){
         startActivity(new Intent(MainActivity.this, AmbulanciaActivity.class));
+    }
+
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+
+                ActivityCompat.requestPermissions( MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    public void medicoAtHome(View view){
+        startActivity(new Intent(MainActivity.this, MedicoActivity.class));
     }
 
 

@@ -247,35 +247,6 @@ public class LlamadaVozActivity extends AppCompatActivity {
         showLongToast(String.format(Locale.US, "user %d muted or unmuted %b", (uid & 0xFFFFFFFFL), muted));
     }
 
-    public void splash(){
-         countDownTimer = new CountDownTimer(30000, 1000) {
 
-
-            @Override
-            public void onTick(long l) {
-                // dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Buscando Doctores Disponibles...", true);
-            }
-
-            public void onFinish() {
-                dialogRec.dismiss();
-                if(!atendio){
-                    finish();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(LlamadaVozActivity.this);
-
-                    builder.setMessage("No hay Doctores Disponibles")
-                            .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
-                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-
-
-            }
-        }.start();
-    }
 
 }

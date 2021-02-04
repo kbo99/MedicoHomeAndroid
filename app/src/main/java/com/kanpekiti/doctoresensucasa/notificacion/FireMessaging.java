@@ -1,5 +1,6 @@
 package com.kanpekiti.doctoresensucasa.notificacion;
 
+import android.app.Activity;
 import android.util.Log;
 
 
@@ -32,8 +33,10 @@ public class FireMessaging extends FirebaseMessagingService {
         NotificacionHelper nh = new NotificacionHelper();
          try {
              nh.createNotification(getApplicationContext(),
-                     URLDecoder.decode(data.values().toArray()[0].toString(), "UTF-8"),
-                     URLDecoder.decode(data.values().toArray()[1].toString(), "UTF-8"));
+                     URLDecoder.decode(data.get("titulo").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("mensaje").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("latitud").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("longitud").toString(), "UTF-8"));
          } catch (UnsupportedEncodingException e) {
              e.printStackTrace();
          }
@@ -48,7 +51,7 @@ public class FireMessaging extends FirebaseMessagingService {
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
 
-        sendRegistrationToServer(token);
+       sendRegistrationToServer(token);
     }
 
 
@@ -68,8 +71,7 @@ public class FireMessaging extends FirebaseMessagingService {
 
 
     private void sendRegistrationToServer(String token) {
-        // TODO: Implement this method to send token to your app server.
-        //new AsynTaskTknFCM().execute(token);
+        new AsynTaskTknFCM(getApplicationContext()).execute(Const.SAVE_TKN_NOTIFICA, token);
     }
 
 

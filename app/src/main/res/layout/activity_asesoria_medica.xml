@@ -18,19 +18,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/botomm_navigation" />
+        app:menu="@menu/botom_naviagtion_no_main" />
 
     <ScrollView
-        android:layout_width="389dp"
-        android:layout_height="766dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
-        android:layout_marginTop="1dp"
         android:layout_marginEnd="2dp"
-        android:layout_marginBottom="75dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,14 +47,8 @@
                 android:textStyle="bold" />
 
             <ImageView
-                android:id="@+id/imageView12"
-                android:layout_width="match_parent"
-                android:layout_height="134dp"
-                android:layout_marginTop="24dp"
-                app:srcCompat="@mipmap/ic_logo_foreground" />
-
-            <ImageView
                 android:id="@+id/imageView19"
+                android:onClick="getVideoCall"
                 android:layout_width="match_parent"
                 android:layout_height="97dp"
                 android:layout_marginTop="28dp"
@@ -79,6 +70,7 @@
 
             <ImageView
                 android:id="@+id/imageView22"
+                android:onClick="getCallView"
                 android:layout_width="match_parent"
                 android:layout_height="97dp"
                 app:srcCompat="@drawable/btn_startcall" />
@@ -87,6 +79,7 @@
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+
                 android:text="Llamada"
                 android:textAlignment="center"
                 android:textColor="@color/colorAccentDark"
@@ -95,6 +88,7 @@
 
             <ImageView
                 android:id="@+id/imageView23"
+                android:onClick="getChatView"
                 android:layout_width="match_parent"
                 android:layout_height="170dp"
                 app:srcCompat="@mipmap/ic_chat_foreground" />
@@ -108,6 +102,18 @@
                 android:textColor="@color/colorAccentDark"
                 android:textSize="24sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView12"
+                android:layout_width="match_parent"
+                android:layout_height="134dp"
+                android:layout_marginTop="24dp"
+                app:srcCompat="@mipmap/ic_logo_foreground" />
+
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="match_parent"
+                android:layout_height="120dp" />
         </LinearLayout>
     </ScrollView>
 

@@ -1,10 +1,13 @@
 package com.kanpekiti.doctoresensucasa.asynTask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.kanpekiti.doctoresensucasa.LoginActivity;
 import com.kanpekiti.doctoresensucasa.MainActivity;
 import com.kanpekiti.doctoresensucasa.api.ChannelApi;
 import com.kanpekiti.doctoresensucasa.api.ChannelService;
@@ -38,16 +41,26 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
 
     private Activity activity;
 
+    private Context context;
+
     public AsynTaskTknFCM(Activity activity){
         this.activity = activity;
     }
 
+    public AsynTaskTknFCM(Context context){
+        this.context = context;
+    }
+
+
     @Override
     protected String[] doInBackground(String... strings) {
-        DoctorDB dataBase = new DoctorDB(activity, DoctorDB.databaseName,
+
+        DoctorDB dataBase = new DoctorDB(activity != null ?
+                activity :context, DoctorDB.databaseName,
                 DoctorDB.databaseFactory, DoctorDB.databaseVersion);
 
-        doctorService = DoctorApi.doctorApi(activity).create(DoctorService.class);
+        doctorService = DoctorApi.doctorApi(activity != null ?
+                activity :context).create(DoctorService.class);
         NotificacionFcm notificacionFcm = new NotificacionFcm();
         notificacionFcm.setUsuUsuario(UserLogged.consultarUsuario(dataBase).getUsername());
 
@@ -60,6 +73,9 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
             for (Grupos grp : lstGrupo) {
                 if (grp.getGprNombre().equals(Const.ROLE_DOCTOR)) {
                     notificacionFcm.setNfcDoctor(Const.STRING_V);
+                    break;
+                }else if(grp.getGprNombre().equals(Const.ROLE_CALL)){
+                    notificacionFcm.setNfcDoctor(Const.STRING_C);
                     break;
                 }
             }
@@ -82,6 +98,13 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
         } else if(strings[0].equals(Const.NOTIFICA_DOCTOR)){
                 notificacionFcm.setTitulo(strings[1]);
                 notificacionFcm.setMensaje(strings[2]);
+                if(strings.length > 3){
+                    notificacionFcm.setLatitude(strings[3]);
+                    notificacionFcm.setLongitude(strings[4]);
+                }else{
+                    notificacionFcm.setLatitude("0");
+                    notificacionFcm.setLongitude("0");
+                }
             lstNotifica = doctorService.generaNotificaLlamada(notificacionFcm);
             lstNotifica.enqueue(new Callback<List<NotificacionFcm>>() {
                 @Override
@@ -126,6 +149,8 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
 
 
     }
+
+
 
 
 }

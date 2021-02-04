@@ -42,9 +42,13 @@ public class LoginActivity extends AppCompatActivity {
         //Recuperar de la vista
         EditText username=  findViewById(R.id.editTextEmail);
         EditText pass = findViewById(R.id.editTextPassword);
-        ProgressDialog dialogRec   = ProgressDialog.show(LoginActivity.this, "Doctores en su Casa", "Iniciando Sesion...", true);
-        new AsynTaskLogin(this, dialogRec).execute(username.getText().toString(),
-                pass.getText().toString());
+        if(!username.getText().toString().isEmpty() && !pass.getText().toString().isEmpty() ){
+            ProgressDialog dialogRec   = ProgressDialog.show(LoginActivity.this, "Doctores en su Casa", "Iniciando Sesion...", true);
+            dialogRec.setIcon(R.drawable.favicon1);
+            new AsynTaskLogin(this, dialogRec).execute(username.getText().toString(),
+                    pass.getText().toString());
+        }
+
 
     }
 

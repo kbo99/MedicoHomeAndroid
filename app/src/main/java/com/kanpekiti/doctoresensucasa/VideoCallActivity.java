@@ -361,7 +361,7 @@ public class VideoCallActivity  extends AppCompatActivity {
 
     private void joinChannel() {
         if(getIntent() != null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
-            dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Buscando Doctores Disponibles...", true);
+            dialogRec = ProgressDialog.show(VideoCallActivity.this, "Video llamada", "Enlazando Video Llamada...", true);
             dialogRec.setIcon(R.drawable.btn_startcall);
 
             new AsynTaskTknFCM(VideoCallActivity.this).execute(Const.NOTIFICA_DOCTOR,

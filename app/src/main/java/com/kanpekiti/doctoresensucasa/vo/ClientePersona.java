@@ -36,6 +36,10 @@ public class ClientePersona {
 	@Expose
 	private Cliente cliente;
 
+	@SerializedName("persona")
+	@Expose
+	private Persona persona;
+
 
 
 
@@ -77,7 +81,11 @@ public class ClientePersona {
 	}
 
 
+	public Persona getPersona() {
+		return persona;
+	}
 
-
-
+	public void setPersona(Persona persona) {
+		this.persona = persona;
+	}
 }

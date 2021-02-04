@@ -16,7 +16,9 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.kanpekiti.doctoresensucasa.AmbulanciaActivity;
 import com.kanpekiti.doctoresensucasa.LlamadaVozActivity;
+import com.kanpekiti.doctoresensucasa.MedicoActivity;
 import com.kanpekiti.doctoresensucasa.R;
 import com.kanpekiti.doctoresensucasa.VideoCallActivity;
 import com.kanpekiti.doctoresensucasa.util.Const;
@@ -31,6 +33,10 @@ public class NotificacionHelper {
 
     private NotificationManagerCompat notificationManagerCompat;
 
+    private String latitud;
+
+    private String longitud;
+
 
 
     public NotificacionHelper() {
@@ -40,11 +46,15 @@ public class NotificacionHelper {
 
 
 
-    public void createNotification(Context context, String titulo, String mensaje){
+    public void createNotification(Context context, String titulo,
+                                   String mensaje,String latitud, String longitud){
         this.context = context;
+        this.latitud = latitud;
+        this.longitud = longitud;
      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
          crrateNotificactionWithChannel(titulo,mensaje, titulo.equals(Const.TITULO_VI) ?
-                 Const.CHANNEL_ID_VC : Const.CHANNEL_ID_LL);
+                 Const.CHANNEL_ID_VC : titulo.equals(Const.TITULO_VO) ? Const.CHANNEL_ID_LL :
+                 titulo.equals(Const.TITULO_AM) ? Const.CHANNEL_ID_AM : Const.CHANNEL_ID_DAH);
      }else {
          crrateNotificactionNohannel(titulo,mensaje);
      }
@@ -55,7 +65,10 @@ public class NotificacionHelper {
     private void crrateNotificactionWithChannel(String titulo, String mensaje,String channelId) {
         try {
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.btn_startcall_normal);
+                    channelId.equals(Const.CHANNEL_ID_AM) ?
+                            R.drawable.ambulance_removebg_preview :
+                            channelId.equals(Const.CHANNEL_ID_DAH) ?
+                                    R.drawable.ic_medico_home_background : R.drawable.btn_startcall_normal);
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(context, channelId).setContentTitle(titulo).
                             setContentText(mensaje).setSmallIcon(R.drawable.favicon1)
@@ -94,9 +107,19 @@ public class NotificacionHelper {
 
     private PendingIntent getPendingIntent(String channel){
         int num = (int) System.currentTimeMillis();
-        Intent intent = new Intent(context, channel.endsWith(Const.CHANNEL_ID_VC) ?
-                VideoCallActivity.class : LlamadaVozActivity.class);
-        intent.putExtra(Const.DOCTOR_PARAM, Const.DOCTOR_PARAM_NAME);
+        Intent intent = new Intent(context, channel.equals(Const.CHANNEL_ID_VC) ?
+                VideoCallActivity.class :  channel.equals(Const.CHANNEL_ID_LL) ?
+                LlamadaVozActivity.class : channel.equals(Const.CHANNEL_ID_AM) ?
+                AmbulanciaActivity.class : MedicoActivity.class);
+
+        if(channel.equals(Const.CHANNEL_ID_AM) ||
+                channel.equals(Const.CHANNEL_ID_DAH)){
+            intent.putExtra(Const.PARAM_LAT, latitud);
+            intent.putExtra(Const.PARAM_LONG, longitud);
+        } else {
+            intent.putExtra(Const.DOCTOR_PARAM, Const.DOCTOR_PARAM_NAME);
+        }
+
         return PendingIntent.getActivity(context, num, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 }
