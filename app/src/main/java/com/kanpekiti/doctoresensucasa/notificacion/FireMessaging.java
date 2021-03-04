@@ -36,7 +36,10 @@ public class FireMessaging extends FirebaseMessagingService {
                      URLDecoder.decode(data.get("titulo").toString(), "UTF-8"),
                      URLDecoder.decode(data.get("mensaje").toString(), "UTF-8"),
                      URLDecoder.decode(data.get("latitud").toString(), "UTF-8"),
-                     URLDecoder.decode(data.get("longitud").toString(), "UTF-8"));
+                     URLDecoder.decode(data.get("longitud").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("tknAgora").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("canal").toString(), "UTF-8"),
+                     URLDecoder.decode(data.get("idLlamada").toString(), "UTF-8"));
          } catch (UnsupportedEncodingException e) {
              e.printStackTrace();
          }

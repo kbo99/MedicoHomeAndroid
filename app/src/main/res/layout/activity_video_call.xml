@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_video_chat_view"
     android:layout_width="match_parent"
@@ -22,6 +23,25 @@
                 android:layout_height="@dimen/remote_back_icon_size"
                 android:layout_centerInParent="true"
                 android:src="@mipmap/ic_logo_foreground" />
+
+            <FrameLayout
+                android:id="@+id/local_video_view_container_extra"
+                android:layout_width="@dimen/local_preview_width"
+                android:layout_height="@dimen/local_preview_height"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="184dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginRight="24dp"
+                android:background="@color/hintColor"
+                android:onClick="onLocalContainerClick">
+
+                <ImageView
+                    android:layout_width="@dimen/local_back_icon_size"
+                    android:layout_height="@dimen/local_back_icon_size"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_logo_foreground" />
+            </FrameLayout>
         </RelativeLayout>
 
         <RelativeLayout
@@ -58,6 +78,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/control_bottom_margin">
+
+        <ImageView
+            android:id="@+id/addDoctor"
+            android:onClick="onDoctorRequerid"
+            android:visibility="invisible"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/control_bottom_horizontal_margin"
+            android:layout_width="@dimen/other_button_size"
+            android:layout_height="@dimen/other_button_size"
+            app:srcCompat="@mipmap/ic_doctor_llaamada_round" />
 
         <ImageView
             android:id="@+id/btn_call"

@@ -1,6 +1,11 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
+
+plugins {
+    id("com.android.application")
+    // 1. Include the plugin
+    id("com.google.secrets_gradle_plugin") version "0.5"
+    id("com.google.gms.google-services")
+}
 android {
 
     compileSdkVersion 29
@@ -64,7 +69,12 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:17.1.0"
     implementation 'com.github.jd-alexander:library:1.1.0'
     implementation 'com.google.android.gms:play-services-basement:17.5.0'
+    // Maps utils (required for custom markers)
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
+
+    // Google Maps Services (needed for directions)
+    implementation 'com.google.maps:google-maps-services:0.2.9'
 }
 
 ext {

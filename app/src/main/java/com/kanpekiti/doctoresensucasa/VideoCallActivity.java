@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
@@ -28,17 +30,29 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.kanpekiti.doctoresensucasa.api.ChannelApi;
 import com.kanpekiti.doctoresensucasa.api.ChannelService;
+import com.kanpekiti.doctoresensucasa.api.DoctorApi;
+import com.kanpekiti.doctoresensucasa.api.DoctorService;
 import com.kanpekiti.doctoresensucasa.api.LoginApi;
 import com.kanpekiti.doctoresensucasa.api.LoginService;
 import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
+import com.kanpekiti.doctoresensucasa.model.DoctorDB;
+import com.kanpekiti.doctoresensucasa.model.Grupos;
 import com.kanpekiti.doctoresensucasa.model.UserLogged;
 import com.kanpekiti.doctoresensucasa.util.Const;
+import com.kanpekiti.doctoresensucasa.vo.Doctor;
+import com.kanpekiti.doctoresensucasa.vo.LlamadaPendiente;
 import com.kanpekiti.doctoresensucasa.vo.LoggerRecyclerView;
+import com.kanpekiti.doctoresensucasa.vo.MedicoLlamada;
+import com.kanpekiti.doctoresensucasa.vo.NotificacionFcm;
 import com.kanpekiti.doctoresensucasa.vo.TokenUser;
 import com.kanpekiti.doctoresensucasa.vo.VideoCallChannel;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,6 +63,8 @@ import io.agora.rtc.video.VideoEncoderConfiguration;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.kanpekiti.doctoresensucasa.AmbulanciaActivity.MY_PERMISSIONS_REQUEST_LOCATION;
 
 public class VideoCallActivity  extends AppCompatActivity {
 
@@ -72,8 +88,10 @@ public class VideoCallActivity  extends AppCompatActivity {
 
     private FrameLayout mLocalContainer;
     private RelativeLayout mRemoteContainer;
+    private FrameLayout mRemoteContainerCall;
     private VideoCanvas mLocalVideo;
     private VideoCanvas mRemoteVideo;
+    private VideoCanvas mRemoteVideoCall;
 
     private ImageView mCallBtn;
     private ImageView mMuteBtn;
@@ -83,7 +101,6 @@ public class VideoCallActivity  extends AppCompatActivity {
 
     private LayoutInflater mInflater;
 
-
     private ProgressDialog dialogRec;
 
     private boolean atendio = false;
@@ -91,81 +108,59 @@ public class VideoCallActivity  extends AppCompatActivity {
     private CountDownTimer countDownTimer;
 
 
-    /**
-     * Event handler registered into RTC engine for RTC callbacks.
-     * Note that UI operations needs to be in UI thread because RTC
-     * engine deals with the events in a separate thread.
-     */
+    private DoctorDB dataBase;
+
+    Call<List<Doctor>> listCall;
+
+    private DoctorService doctorService;
+
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private Location locationGlobal;
+
+    Call<LlamadaPendiente> llamadaPendienteCall;
+
+    private boolean isDoctor = false;
+    private boolean isOperador = false;
+
+    Call<MedicoLlamada> medicoLlamadaCall;
+
+
+
+
+
+
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
-        /**
-         * Occurs when the local user joins a specified channel.
-         * The channel name assignment is based on channelName specified in the joinChannel method.
-         * If the uid is not specified when joinChannel is called, the server automatically assigns a uid.
-         *
-         * @param channel Channel name.
-         * @param uid User ID.
-         * @param elapsed Time elapsed (ms) from the user calling joinChannel until this callback is triggered.
-         */
+
         @Override
         public void onJoinChannelSuccess(String channel, final int uid, int elapsed) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     //mLogView.logI("Join channel success, uid: " + (uid & 0xFFFFFFFFL));
-                  //  setupRemoteVideo(uid);
+
                 }
             });
         }
 
-        /**
-         * Occurs when the first remote video frame is received and decoded.
-         * This callback is triggered in either of the following scenarios:
-         *
-         *     The remote user joins the channel and sends the video stream.
-         *     The remote user stops sending the video stream and re-sends it after 15 seconds. Possible reasons include:
-         *         The remote user leaves channel.
-         *         The remote user drops offline.
-         *         The remote user calls the muteLocalVideoStream method.
-         *         The remote user calls the disableVideo method.
-         *
-         * @param uid User ID of the remote user sending the video streams.
-         * @param width Width (pixels) of the video stream.
-         * @param height Height (pixels) of the video stream.
-         * @param elapsed Time elapsed (ms) from the local user calling the joinChannel method until this callback is triggered.
-         */
+
         @Override
         public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     //mLogView.logI("First remote video decoded, uid: " + (uid & 0xFFFFFFFFL));
-                    setupRemoteVideo(uid);
+                    if(mRemoteVideo == null){
+                        setupRemoteVideo(uid);
+                    }else {
+                        setupRemoteVideoExtra(uid);
+                    }
+
                 }
             });
         }
 
-        /**
-         * Occurs when a remote user (Communication)/host (Live Broadcast) leaves the channel.
-         *
-         * There are two reasons for users to become offline:
-         *
-         *     Leave the channel: When the user/host leaves the channel, the user/host sends a
-         *     goodbye message. When this message is received, the SDK determines that the
-         *     user/host leaves the channel.
-         *
-         *     Drop offline: When no data packet of the user or host is received for a certain
-         *     period of time (20 seconds for the communication profile, and more for the live
-         *     broadcast profile), the SDK assumes that the user/host drops offline. A poor
-         *     network connection may lead to false detections, so we recommend using the
-         *     Agora RTM SDK for reliable offline detection.
-         *
-         * @param uid ID of the user or host who leaves the channel or goes offline.
-         * @param reason Reason why the user goes offline:
-         *
-         *     USER_OFFLINE_QUIT(0): The user left the current channel.
-         *     USER_OFFLINE_DROPPED(1): The SDK timed out and the user dropped offline because no data packet was received within a certain period of time. If a user quits the call and the message is not passed to the SDK (due to an unreliable channel), the SDK assumes the user dropped offline.
-         *     USER_OFFLINE_BECOME_AUDIENCE(2): (Live broadcast only.) The client role switched from the host to the audience.
-         */
+
         @Override
         public void onUserOffline(final int uid, int reason) {
             runOnUiThread(new Runnable() {
@@ -179,25 +174,17 @@ public class VideoCallActivity  extends AppCompatActivity {
     };
 
     private void setupRemoteVideo(int uid) {
-        ViewGroup parent = mRemoteContainer;
+        ViewGroup parent =   mRemoteContainer;
         if (parent.indexOfChild(mLocalVideo.view) > -1) {
             parent = mLocalContainer;
         }
 
-        // Only one remote video view is available for this
-        // tutorial. Here we check if there exists a surface
-        // view tagged as this uid.
+
+
         if (mRemoteVideo != null) {
             return;
         }
 
-        /*
-          Creates the video renderer view.
-          CreateRendererView returns the SurfaceView type. The operation and layout of the view
-          are managed by the app, and the Agora SDK renders the view provided by the app.
-          The video display view must be created using this method instead of directly
-          calling SurfaceView.
-         */
         SurfaceView view = RtcEngine.CreateRendererView(getBaseContext());
         view.setZOrderMediaOverlay(parent == mLocalContainer);
         parent.addView(view);
@@ -210,13 +197,20 @@ public class VideoCallActivity  extends AppCompatActivity {
             countDownTimer.onFinish();
         }
 
+
+
     }
 
+
+
     private void onRemoteUserLeft(int uid) {
-        if (mRemoteVideo != null && mRemoteVideo.uid == uid) {
+        if ((mRemoteVideo != null && mRemoteVideo.uid == uid) ||
+                (mRemoteVideoCall != null && mRemoteVideoCall.uid == uid)) {
             removeFromParent(mRemoteVideo);
+            removeFromParent(mRemoteVideoCall);
             // Destroys remote view
             mRemoteVideo = null;
+            mRemoteVideoCall = null;
             mCallEnd = false;
             changeBotun();
         }
@@ -236,24 +230,158 @@ public class VideoCallActivity  extends AppCompatActivity {
         getSupportActionBar().setCustomView(mCustomView);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(VideoCallActivity.this);
 
+        dataBase = new DoctorDB(VideoCallActivity.this, DoctorDB.databaseName,
+                DoctorDB.databaseFactory, DoctorDB.databaseVersion);
 
         //Recuperar de la vista
-
-        if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
-                checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID) &&
-                checkSelfPermission(REQUESTED_PERMISSIONS[2], PERMISSION_REQ_ID)) {
-            initEngineAndJoinChannel();
+        doctorService = DoctorApi.doctorApi(VideoCallActivity.this).create(DoctorService.class);
+        List<Grupos> lstGrupo = Grupos.consultarGrupo(dataBase);
+        for (Grupos grp : lstGrupo) {
+            if (grp.getGprNombre().equals(Const.ROLE_CALL)) {
+                ImageView imageView = findViewById(R.id.addDoctor);
+                imageView.setVisibility(View.VISIBLE);
+                isOperador = true;
+                break;
+            } else if(grp.getGprNombre().equals(Const.ROLE_DOCTOR)){
+                isDoctor = true;
+            }
         }
 
+        determinaLlamadaPerfil();
+ }
+
+ private  void determinaLlamadaPerfil(){
+     //si no es doctor u operador es paciente
+     if(!isDoctor && !isOperador){
+         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID) &&
+                 checkSelfPermission(REQUESTED_PERMISSIONS[2], PERMISSION_REQ_ID)) {
+             initEngineAndJoinChannel();
+
+
+         }
+         splash();
+     }else if(isOperador) {
+         findLlamadaPendiemte();
+     } else if(isDoctor){
+         findLlamadaDoctor();
+     }
+
+ }
+
+    private void findLlamadaDoctor() {
+        NotificacionFcm notificacionFcm = buildLlamadaPendiente();
+        medicoLlamadaCall = doctorService.callDoctor(notificacionFcm);
+        medicoLlamadaCall.enqueue(new Callback<MedicoLlamada>() {
+            @Override
+            public void onResponse(Call<MedicoLlamada> call, Response<MedicoLlamada> response) {
+                if(response.code() == 200){
+                    MedicoLlamada medicoLlamada = response.body();
+                    if(medicoLlamada.getMllEstatus().equals(Const.ESTATUS_LLAMADA_ATENDIDA_DOCTOR)){
+                        if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                                checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID) &&
+                                checkSelfPermission(REQUESTED_PERMISSIONS[2], PERMISSION_REQ_ID)) {
+                            initEngineAndJoinChannel();
+
+
+                        }
+                    }else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
+
+                        builder.setMessage("Llamada ya fue atendida")
+                                .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.show();
+                        changeBotun();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MedicoLlamada> call, Throwable t) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
+
+                builder.setMessage("Llamada ya fue atendida")
+                        .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
+                changeBotun();
+            }
+        });
     }
 
+    private NotificacionFcm buildLlamadaPendiente(){
+        UserLogged user = UserLogged.consultarUsuario(dataBase);
+        NotificacionFcm notificacionFcm = new NotificacionFcm();
+        notificacionFcm.setUsuUsuario(user.getUsername());
+        notificacionFcm.setIdLlamada(getIntent().getIntExtra(Const.PARAM_ID_LLAMADA,0));
+        return notificacionFcm;
+    }
+    private void findLlamadaPendiemte() {
+        NotificacionFcm notificacionFcm = buildLlamadaPendiente();
+        llamadaPendienteCall = doctorService.callOperador(notificacionFcm);
+        llamadaPendienteCall.enqueue(new Callback<LlamadaPendiente>() {
+            @Override
+            public void onResponse(Call<LlamadaPendiente> call, Response<LlamadaPendiente> response) {
+                if(response.code() == 200){
+                    LlamadaPendiente llamadaPendiente = response.body();
+                    if((!llamadaPendiente.getUsuAtiende().equals(notificacionFcm.getUsuUsuario()) &&
+                            llamadaPendiente.getLlpEstatus().equals(Const.ESTATUS_LLAMADA_ATENDIDA))
+                            || llamadaPendiente.getLlpEstatus().equals(Const.ESTATUS_LLAMADA_ATENDIDA_FIN)
+                    || llamadaPendiente.getLlpEstatus().equals(Const.ESTATUS_LLAMADA_NO_ATENDIDA)){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
+
+                        builder.setMessage("Llamada ya fue atendida")
+                                .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                    }else {
+                        if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                                checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID) &&
+                                checkSelfPermission(REQUESTED_PERMISSIONS[2], PERMISSION_REQ_ID)) {
+                            initEngineAndJoinChannel();
+
+
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LlamadaPendiente> call, Throwable t) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
+
+                builder.setMessage("Conexion no exitosa")
+                        .setTitle("Aviso").setIcon(R.drawable.btn_endcall);
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        startActivity(new Intent(VideoCallActivity.this, MembresiaActivity.class));
+                    }
+                });
+            }
+        });
+
+    }
 
 
     private void initUI() {
         mLocalContainer = findViewById(R.id.local_video_view_container);
         mRemoteContainer = findViewById(R.id.remote_video_view_container);
-
+        mRemoteContainerCall = findViewById(R.id.local_video_view_container_extra);
         mCallBtn = findViewById(R.id.btn_call);
         mMuteBtn = findViewById(R.id.btn_mute);
         mSwitchCameraBtn = findViewById(R.id.btn_switch_camera);
@@ -290,8 +418,6 @@ public class VideoCallActivity  extends AppCompatActivity {
                 return;
             }
 
-            // Here we continue only if all permissions are granted.
-            // The permissions can also be granted in the system settings manually.
             initEngineAndJoinChannel();
         }
     }
@@ -306,13 +432,52 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     private void initEngineAndJoinChannel() {
-        // This is our usual steps for joining
-        // a channel and starting a call.
-        initializeEngine();
-        setupVideoConfig();
-        setupLocalVideo();
-        joinChannel();
+       if(checkLocationPermission()){
+           fusedLocationClient.getLastLocation()
+                   .addOnSuccessListener(VideoCallActivity.this, new OnSuccessListener<Location>() {
+                       @Override
+                       public void onSuccess(Location location) {
+                           if (location != null) {
+                               locationGlobal = location;
+                               initializeEngine();
+                               setupVideoConfig();
+                               setupLocalVideo();
+                               joinChannel();
+                           }else {
+
+                           }
+                       }
+                   });
+       }
+
     }
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(VideoCallActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(VideoCallActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+
+                ActivityCompat.requestPermissions(VideoCallActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(VideoCallActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 
     private void initializeEngine() {
         try {
@@ -324,9 +489,6 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     private void setupVideoConfig() {
-        // In simple use cases, we only need to enable video capturing
-        // and rendering once at the initialization step.
-        // Note: audio recording and playing is enabled by default.
         mRtcEngine.enableVideo();
 
         // Please go to this page for detailed explanation
@@ -339,23 +501,25 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     private void setupLocalVideo() {
-        // This is used to set a local preview.
-        // The steps setting local and remote view are very similar.
-        // But note that if the local user do not have a uid or do
-        // not care what the uid is, he can set his uid as ZERO.
-        // Our server will assign one and return the uid via the event
-        // handler callback function (onJoinChannelSuccess) after
-        // joining the channel successfully.
+
         SurfaceView view = RtcEngine.CreateRendererView(getBaseContext());
         view.setZOrderMediaOverlay(true);
         mLocalContainer.addView(view);
-        // Initializes the local video view.
-        // RENDER_MODE_HIDDEN: Uniformly scale the video until it fills the visible boundaries. One dimension of the video may have clipped contents.
         mLocalVideo = new VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, 0);
         mRtcEngine.setupLocalVideo(mLocalVideo);
         if(getIntent() != null && getIntent().getStringExtra(Const.DOCTOR_PARAM) == null){
             splash();
         }
+
+    }
+
+    private void setupRemoteVideoExtra(int uid) {
+        SurfaceView view = RtcEngine.CreateRendererView(getBaseContext());
+        view.setZOrderMediaOverlay(true);
+        mRemoteContainerCall.addView(view);
+        mRemoteVideoCall = new VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, uid);
+        mRtcEngine.setupRemoteVideo(mRemoteVideoCall);
+
 
     }
 
@@ -365,8 +529,16 @@ public class VideoCallActivity  extends AppCompatActivity {
             dialogRec.setIcon(R.drawable.btn_startcall);
 
             new AsynTaskTknFCM(VideoCallActivity.this).execute(Const.NOTIFICA_DOCTOR,
-                    Const.TITULO_VI,Const.MENSAJE_VI);
+                    Const.TITULO_VI,Const.MENSAJE_VI,
+                    locationGlobal.getLatitude()+"",locationGlobal.getLongitude()+"");
         }
+
+        if(getIntent() != null && getIntent().getStringExtra(Const.CANAL) != null &&
+                !getIntent().getStringExtra(Const.CANAL).isEmpty()){
+            ImageView imageView = findViewById(R.id.addDoctor);
+            imageView.setVisibility(View.VISIBLE);
+        }
+
 
         mRtcEngine.joinChannel("de23719d4dd643c4bf17f484ddfdbdfc",
                 "channelAgora", "Extra Optional Data", 0);
@@ -385,7 +557,9 @@ public class VideoCallActivity  extends AppCompatActivity {
             public void onFinish() {
 
                if(!atendio){
-                   dialogRec.dismiss();
+                  if(dialogRec != null)
+                      dialogRec.dismiss();
+
                    mCallEnd = false;
                    changeBotun();
                    AlertDialog.Builder builder = new AlertDialog.Builder(VideoCallActivity.this);
@@ -412,17 +586,12 @@ public class VideoCallActivity  extends AppCompatActivity {
         if (!mCallEnd) {
             leaveChannel();
         }
-        /*
-          Destroys the RtcEngine instance and releases all resources used by the Agora SDK.
-
-          This method is useful for apps that occasionally make voice or video calls,
-          to free up resources for other operations when not making calls.
-         */
         RtcEngine.destroy();
     }
 
     private void leaveChannel() {
-        mRtcEngine.leaveChannel();
+        if(mRtcEngine != null)
+            mRtcEngine.leaveChannel();
     }
 
     public void onLocalAudioMuteClicked(View view) {
@@ -457,8 +626,8 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     private void startCall() {
-        setupLocalVideo();
-        joinChannel();
+        determinaLlamadaPerfil();
+
     }
 
     private void endCall() {
@@ -466,6 +635,8 @@ public class VideoCallActivity  extends AppCompatActivity {
         mLocalVideo = null;
         removeFromParent(mRemoteVideo);
         mRemoteVideo = null;
+        removeFromParent(mRemoteVideoCall);
+        mRemoteVideoCall = null;
         leaveChannel();
     }
 
@@ -512,6 +683,27 @@ public class VideoCallActivity  extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
+    }
+
+    public void onDoctorRequerid(View view){
+
+        listCall = doctorService.findDoctores();
+        listCall.enqueue(new Callback<List<Doctor>>() {
+            @Override
+            public void onResponse(Call<List<Doctor>> call, Response<List<Doctor>> response) {
+                if(response.code() == 200){
+                    List<Doctor> respuesta = response.body();
+                    DialogFragment newFragment = CallDoctorFragment.newInstance(respuesta);
+                    newFragment.show(getSupportFragmentManager(),"frmTarjeta");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Doctor>> call, Throwable t) {
+
+            }
+        });
+
     }
 
 

@@ -1,7 +1,11 @@
 package com.kanpekiti.doctoresensucasa.api;
 
+import com.kanpekiti.doctoresensucasa.MedicoActivity;
 import com.kanpekiti.doctoresensucasa.vo.Beneficio;
+import com.kanpekiti.doctoresensucasa.vo.Doctor;
 import com.kanpekiti.doctoresensucasa.vo.Grupo;
+import com.kanpekiti.doctoresensucasa.vo.LlamadaPendiente;
+import com.kanpekiti.doctoresensucasa.vo.MedicoLlamada;
 import com.kanpekiti.doctoresensucasa.vo.Membresia;
 import com.kanpekiti.doctoresensucasa.vo.MembresiaCliente;
 import com.kanpekiti.doctoresensucasa.vo.NotificacionFcm;
@@ -40,5 +44,16 @@ public interface DoctorService {
     Call<MembresiaCliente> findMembresia(@Body String user);
 
 
+    @POST(("api/servicio-admin/persona/findDoctor"))
+    Call<List<Doctor>> findDoctores();
+
+    @POST(("api/notificacion/fcm/atiendeOperador"))
+    Call<LlamadaPendiente> callOperador(@Body NotificacionFcm notificacionFcm);
+
+    @POST(("api/notificacion/fcm/notificaMedico"))
+    Call<MedicoLlamada> saveNotificaMedico(@Body MedicoLlamada medicoLlamada);
+
+    @POST(("api/notificacion/fcm/atiendeDoctor"))
+    Call<MedicoLlamada> callDoctor(@Body NotificacionFcm notificacionFcm);
 
 }

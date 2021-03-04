@@ -121,16 +121,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void initCall(View view){
 
-        List<Grupos> lstGrupo = Grupos.consultarGrupo(dataBase);
-        for (Grupos grp : lstGrupo) {
-            if (grp.getGprNombre().equals(Const.ROLE_DOCTOR)) {
-                this.isDoctor = true;
-                break;
-            }
-        }
-        if(!this.isDoctor){
+      //  List<Grupos> lstGrupo = Grupos.consultarGrupo(dataBase);
+       // for (Grupos grp : lstGrupo) {
+        //    if (grp.getGprNombre().equals(Const.ROLE_DOCTOR)) {
+            //    this.isDoctor = true;
+            //    break;
+          //  }
+       // }
+       // if(!this.isDoctor){
             startActivity(new Intent(MainActivity.this, VideoCallActivity.class));
-        }
+        //}
 
     }
 

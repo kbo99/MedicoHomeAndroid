@@ -37,6 +37,11 @@ public class NotificacionHelper {
 
     private String longitud;
 
+    private String tknAgora;
+
+    private String canal;
+
+    private Integer idLlamada;
 
 
     public NotificacionHelper() {
@@ -47,10 +52,15 @@ public class NotificacionHelper {
 
 
     public void createNotification(Context context, String titulo,
-                                   String mensaje,String latitud, String longitud){
+                                   String mensaje,String latitud,
+                                   String longitud, String tkn,
+                                   String canal, String idLlamada){
         this.context = context;
         this.latitud = latitud;
         this.longitud = longitud;
+        this.canal = canal;
+        this.tknAgora = tkn;
+        this.idLlamada = new Integer(idLlamada);
      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
          crrateNotificactionWithChannel(titulo,mensaje, titulo.equals(Const.TITULO_VI) ?
                  Const.CHANNEL_ID_VC : titulo.equals(Const.TITULO_VO) ? Const.CHANNEL_ID_LL :
@@ -118,6 +128,13 @@ public class NotificacionHelper {
             intent.putExtra(Const.PARAM_LONG, longitud);
         } else {
             intent.putExtra(Const.DOCTOR_PARAM, Const.DOCTOR_PARAM_NAME);
+            intent.putExtra(Const.CANAL, canal);
+            intent.putExtra(Const.TKN_AGORA, tknAgora);
+            intent.putExtra(Const.PARAM_LAT, latitud);
+            intent.putExtra(Const.PARAM_LONG, longitud);
+            if(idLlamada != null){
+                intent.putExtra(Const.PARAM_ID_LLAMADA, idLlamada);
+            }
         }
 
         return PendingIntent.getActivity(context, num, intent, PendingIntent.FLAG_CANCEL_CURRENT);

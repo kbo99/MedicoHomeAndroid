@@ -63,6 +63,19 @@ public class NotificacionFcm implements Serializable {
 	@Expose
 	private String latitude;
 
+	@SerializedName("canal")
+	@Expose
+	private String canal;
+
+
+	@SerializedName("tknAgora")
+	@Expose
+	private String tknAgora;
+
+	@SerializedName("idLlamada")
+	@Expose
+	private Integer idLlamada;
+
 	public NotificacionFcm() {
 	}
 
@@ -152,5 +165,29 @@ public class NotificacionFcm implements Serializable {
 
 	public void setLatitude(String latitude) {
 		this.latitude = latitude;
+	}
+
+	public String getCanal() {
+		return canal;
+	}
+
+	public void setCanal(String canal) {
+		this.canal = canal;
+	}
+
+	public String getTknAgora() {
+		return tknAgora;
+	}
+
+	public void setTknAgora(String tknAgora) {
+		this.tknAgora = tknAgora;
+	}
+
+	public Integer getIdLlamada() {
+		return idLlamada;
+	}
+
+	public void setIdLlamada(Integer idLlamada) {
+		this.idLlamada = idLlamada;
 	}
 }

@@ -117,10 +117,13 @@ public class MembresiaActivity extends AppCompatActivity {
     private void loadTxt() {
         TextView textView = (TextView) findViewById(R.id.txtMemberId);
         TextView textEstatus = (TextView) findViewById(R.id.txtMemEstatus);
-        TextView textSa = (TextView) findViewById(R.id.txtFechaCorte);
+        TextView textSa = (TextView) findViewById(R.id.txtSaldo);
+        TextView textFecha = (TextView) findViewById(R.id.txtFechaCorte);
         textEstatus.setText(membresia.getMecEstatus());
         textView.setText(membresia.getMecFolio());
         textSa.setText("$1,200.00");
+        textFecha.setText("20/02/2021");
+
 
     }
 

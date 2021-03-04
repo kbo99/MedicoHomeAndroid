@@ -111,7 +111,7 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
                 public void onResponse(Call<List<NotificacionFcm>> call, Response<List<NotificacionFcm>> response) {
                        if(response.body() != null){
                            List<NotificacionFcm> tkn = response.body();
-                       //    sendFCMServer(tkn);
+                        // sendFCMServer(tkn);
                        }
 
                 }
@@ -138,12 +138,12 @@ public class AsynTaskTknFCM extends AsyncTask<String, String, String[]> {
         this.tkn.enqueue(new Callback<NotificacionFcm>() {
             @Override
             public void onResponse(Call<NotificacionFcm> call, Response<NotificacionFcm> response) {
-
+                NotificacionFcm rr = response.body();
             }
 
             @Override
             public void onFailure(Call<NotificacionFcm> call, Throwable t) {
-
+               System.out.println(t.getCause());
             }
         });
 

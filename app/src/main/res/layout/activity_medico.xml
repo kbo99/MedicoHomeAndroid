@@ -54,7 +54,16 @@
 
 
             </androidx.fragment.app.FragmentContainerView>
-
+            <TextView
+                android:id="@+id/rutasDis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rutas Disponibles"
+                android:textColor="@color/colorAccentDark" />
+            <Spinner
+                android:id="@+id/rout_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/medicath"
@@ -73,6 +82,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/map" />
 
+
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="fffl"
+                android:id="@+id/snap_to_roads"
+                android:enabled="true"
+                android:onClick="onSnapToRoadsButtonClick"/>
+
             <TextView
                 android:id="@+id/textView16"
                 android:layout_width="match_parent"
@@ -90,7 +109,19 @@
                 android:id="@+id/textView20"
                 android:layout_width="match_parent"
                 android:layout_height="105dp" />
+
+            <ProgressBar
+                android:layout_width="fill_parent"
+                android:layout_height="20dp"
+                android:id="@+id/progress_bar"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_gravity="top|center"
+                android:visibility="invisible"
+                style="?android:attr/progressBarStyleHorizontal"/>
         </LinearLayout>
+
+
     </ScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -104,4 +135,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/botom_naviagtion_no_main" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

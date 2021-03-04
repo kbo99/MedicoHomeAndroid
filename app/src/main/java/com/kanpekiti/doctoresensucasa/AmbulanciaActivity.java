@@ -160,15 +160,16 @@ public class AmbulanciaActivity extends AppCompatActivity implements GoogleMap.O
             String titulo = "";
             String mensaje = "";
             if(Const.ROLE_DOCTOR.equals(perfil) || Const.ROLE_CALL.equals(perfil)){
-                titulo = Const.TITULO_AM;
-                mensaje = Const.MENSAJE_AM;
-            }else {
                 titulo = Const.TITULO_AMC;
                 mensaje = Const.MENSAJE_AMC;
+            }else {
+
+                titulo = Const.TITULO_AM;
+                mensaje = Const.MENSAJE_AM;
             }
             new AsynTaskTknFCM(AmbulanciaActivity.this).execute(Const.NOTIFICA_DOCTOR,
                     titulo,mensaje,locationGlobal.getLatitude()+"",
-                    locationGlobal.getLatitude()+"");
+                    locationGlobal.getLongitude()+"");
         }
 
         }
@@ -231,13 +232,12 @@ public class AmbulanciaActivity extends AppCompatActivity implements GoogleMap.O
 
             addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
-            if(getIntent() != null && getIntent().getStringExtra(PARAM_LAT) != null
-                    && getIntent().getStringExtra(PARAM_LONG) != null){
-                setLocationRemote(new Double(getIntent().getStringExtra(PARAM_LAT)),
-                        new Double(getIntent().getStringExtra(PARAM_LONG)),
-                        Const.ROLE_DOCTOR.equals(perfil) || Const.ROLE_CALL.equals(perfil) ?
-                                "Ubicacion Paciente" : "Ubicacion Ambulancia", true);
-            }
+            //if(getIntent() != null && getIntent().getStringExtra(PARAM_LAT) != null
+           //         && getIntent().getStringExtra(PARAM_LONG) != null){
+            setLocationRemote(new Double("37.433024"),
+                    new Double("-122.116459"),
+                        "Ubicacion Paciente" , true);
+           // }
             String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
             StringBuffer strb = new StringBuffer("Mi ubicacion: ").append(address);
             TextView textView = findViewById(R.id.txtUbicacion);
@@ -247,13 +247,15 @@ public class AmbulanciaActivity extends AppCompatActivity implements GoogleMap.O
         }
     }
 
-    private void setLocationRemote(double latitud, double longitud,
+    private Marker setLocationRemote(double latitud, double longitud,
                                    String title, boolean remote) {
         LatLng sydney = new LatLng(latitud, longitud);
-        mMap.addMarker(new MarkerOptions().position(sydney).title(title));
+       Marker maker = mMap.addMarker(new MarkerOptions().position(sydney).title(title));
 
         if(!remote)
             mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        return maker;
     }
 
     @Override
