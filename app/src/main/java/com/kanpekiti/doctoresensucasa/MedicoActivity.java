@@ -63,6 +63,7 @@ import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskTknFCM;
 import com.kanpekiti.doctoresensucasa.model.DoctorDB;
 import com.kanpekiti.doctoresensucasa.model.Grupos;
 import com.kanpekiti.doctoresensucasa.util.Const;
+import com.kanpekiti.doctoresensucasa.util.Utlis;
 import com.kanpekiti.doctoresensucasa.vo.Doctor;
 
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class MedicoActivity extends AppCompatActivity implements GoogleMap.OnMyL
 
     private Location locationGlobal;
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
 
     private View mCustomView;
 
@@ -312,7 +313,7 @@ public class MedicoActivity extends AppCompatActivity implements GoogleMap.OnMyL
     public void onMapReady(GoogleMap googleMap) {
 
 
-        if (checkLocationPermission()) {
+        if (Utlis.checkLocationPermission(MedicoActivity.this)) {
             mMap = googleMap;
             mMap.setOnMyLocationButtonClickListener(MedicoActivity.this);
             mMap.setOnMyLocationClickListener(MedicoActivity.this);
@@ -347,31 +348,7 @@ public class MedicoActivity extends AppCompatActivity implements GoogleMap.OnMyL
         }
 
     }
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(MedicoActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MedicoActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-                ActivityCompat.requestPermissions(MedicoActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MedicoActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
 
 
     @Override
@@ -542,9 +519,6 @@ public class MedicoActivity extends AppCompatActivity implements GoogleMap.OnMyL
             }
         });
 
-
-
-        //endregion
 
     }
 }

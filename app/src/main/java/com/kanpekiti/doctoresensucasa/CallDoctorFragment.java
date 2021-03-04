@@ -51,6 +51,7 @@ import com.kanpekiti.doctoresensucasa.api.DoctorService;
 import com.kanpekiti.doctoresensucasa.asynTask.AsynTaskLlamada;
 import com.kanpekiti.doctoresensucasa.model.UserLogged;
 import com.kanpekiti.doctoresensucasa.util.Const;
+import com.kanpekiti.doctoresensucasa.util.Utlis;
 import com.kanpekiti.doctoresensucasa.vo.Beneficio;
 import com.kanpekiti.doctoresensucasa.vo.Doctor;
 import com.kanpekiti.doctoresensucasa.vo.MedicoLlamada;
@@ -252,7 +253,7 @@ return rootView;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         MapsInitializer.initialize(this.getActivity());
-        if (checkLocationPermission()) {
+        if (Utlis.checkLocationPermission(this.getActivity())) {
             mMap = googleMap;
             mMap.setOnMyLocationButtonClickListener(CallDoctorFragment.this);
             mMap.setOnMyLocationClickListener(CallDoctorFragment.this);
@@ -266,38 +267,13 @@ return rootView;
                             if (location != null) {
                                 locationGlobal = location;
                                 miUbicacion(locationGlobal);
-                            }else {
+                            } else {
 
                             }
                         }
                     });
         }
     }
-    public boolean checkLocationPermission() {
-       if (ContextCompat.checkSelfPermission(this.getActivity(),
-    Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this.getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-        } else {
-            // No explanation needed, we can request the permission.
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION);
-        }
-        return false;
-    } else {
-        return true;
-    }
-}
     private  void miUbicacion(Location location){
         try {
 

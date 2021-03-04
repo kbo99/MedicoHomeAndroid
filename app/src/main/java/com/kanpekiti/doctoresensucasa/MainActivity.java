@@ -39,6 +39,7 @@ import com.kanpekiti.doctoresensucasa.model.DoctorDB;
 import com.kanpekiti.doctoresensucasa.model.Grupos;
 import com.kanpekiti.doctoresensucasa.model.UserLogged;
 import com.kanpekiti.doctoresensucasa.util.Const;
+import com.kanpekiti.doctoresensucasa.util.Utlis;
 
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         createNotificationChannel();
 
-        checkLocationPermission();
+        Utlis.checkLocationPermission(MainActivity.this);
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -191,32 +192,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, AmbulanciaActivity.class));
     }
 
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-                ActivityCompat.requestPermissions( MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
 
 
     public void medicoAtHome(View view){

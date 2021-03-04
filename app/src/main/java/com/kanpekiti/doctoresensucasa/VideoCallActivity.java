@@ -44,6 +44,7 @@ import com.kanpekiti.doctoresensucasa.model.DoctorDB;
 import com.kanpekiti.doctoresensucasa.model.Grupos;
 import com.kanpekiti.doctoresensucasa.model.UserLogged;
 import com.kanpekiti.doctoresensucasa.util.Const;
+import com.kanpekiti.doctoresensucasa.util.Utlis;
 import com.kanpekiti.doctoresensucasa.vo.Doctor;
 import com.kanpekiti.doctoresensucasa.vo.LlamadaPendiente;
 import com.kanpekiti.doctoresensucasa.vo.LoggerRecyclerView;
@@ -432,7 +433,7 @@ public class VideoCallActivity  extends AppCompatActivity {
     }
 
     private void initEngineAndJoinChannel() {
-       if(checkLocationPermission()){
+       if(Utlis.checkLocationPermission(VideoCallActivity.this)){
            fusedLocationClient.getLastLocation()
                    .addOnSuccessListener(VideoCallActivity.this, new OnSuccessListener<Location>() {
                        @Override
@@ -452,31 +453,7 @@ public class VideoCallActivity  extends AppCompatActivity {
 
     }
 
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(VideoCallActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(VideoCallActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-                ActivityCompat.requestPermissions(VideoCallActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(VideoCallActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
 
 
     private void initializeEngine() {

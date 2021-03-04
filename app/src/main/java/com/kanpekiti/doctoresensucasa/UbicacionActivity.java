@@ -18,6 +18,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.kanpekiti.doctoresensucasa.util.Utlis;
 
 public class UbicacionActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -51,7 +52,7 @@ public class UbicacionActivity extends FragmentActivity implements OnMapReadyCal
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if(checkLocationPermission()){
+        if(Utlis.checkLocationPermission(UbicacionActivity.this)){
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(UbicacionActivity.this, new OnSuccessListener<Location>() {
                         @Override
@@ -70,31 +71,5 @@ public class UbicacionActivity extends FragmentActivity implements OnMapReadyCal
                     });
         }
 
-    }
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(UbicacionActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(UbicacionActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-
-                ActivityCompat.requestPermissions(UbicacionActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(UbicacionActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
     }
 }
